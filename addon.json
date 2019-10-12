@@ -1,0 +1,23 @@
+{
+    "type": "addon",
+    "key": "rj-spotify",
+    "name": "Spotify Login",
+    "description": "Allow users to sign in with their Spotify account.",
+    "license": "MIT",
+    "version": "0.1.0",
+    "settingsUrl": "/settings/spotify",
+    "pluginUrl": "https://github.com/r-j/rj-spotify",
+    "authors": [
+        {
+            "name": "Robin Jurinka",
+            "homepage": "https://open.vanillaforums.com/profile/r_j"
+        }
+    ],
+    "priority": 10,
+    "hasLocale": true,
+    "mobileFriendly": true,
+    "usePopupSettings": true,
+    "socialConnect": true,
+    "icon": "design/icon4@2x.png",
+    "className": "SpotifyPlugin"
+}

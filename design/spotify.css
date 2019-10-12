@@ -1,0 +1,11 @@
+ a.SocialIcon.SocialIcon-Spotify span.Icon {
+    background-position: center !important;
+    background-color: #5EB573 !important;
+    background-image: url("/plugins/rj-spotify/design/icon4@2x.png") !important;
+    background-size:100% 100% !important;
+}
+
+ a.SocialIcon.SocialIcon-Spotify span.Text {
+    background-color: #5EB573;
+    color: white;
+}
