@@ -58,6 +58,7 @@ class SpotifyPlugin extends Gdn_OAuth2 {
      */
     public function settingsEndpoint($sender, $args) {
         // Set title, description and url endpoints.
+        // Urls are set in hidden fields. Parent method requires them.
         $sender->setData([
             'Title' => Gdn::translate('Spotify Settings'),
             'Description' => Gdn::translate('rj-spotify-instructions'),
@@ -72,24 +73,15 @@ class SpotifyPlugin extends Gdn_OAuth2 {
     }
 
     /**
-     * Don't show additional config fields. They are set by the plugin.
+     * Prevent showing/requiring additional fields in the config.
+     *
+     * Spotify specific OAuth2 fields are already set in the structure() method.
      *
      * @return array Empty array of additional config fields.
      */
     public function getSettingsFormFields() {
         return [];
     }
-
-/*
-    public function getSettingsFormFields() {
-        $formFields = parent::getSettingsFormFields();
-        $formFields['RedirectUrl'] = [
-            'LabelCode' => 'Redirect Url',
-            'Description' => 'Enter the Url users should be redirected after logging in.'
-        ];
-        return $formFields;
-    }
-*/
 
     /**
      * Add spotify css to pages.
@@ -103,15 +95,12 @@ class SpotifyPlugin extends Gdn_OAuth2 {
         $sender->addCssFile('spotify.css', 'plugins/rj-spotify');
     }
 
-    public function gdn_oAuth2_afterConnection_handler($sender, $args) {
-        if ($args['Provider'] !== 'spotify') {
-            return;
-        }
-        // $args['User'];
-    }
-
     /**
-     * Set Spotify FullName as UserName and Photo.
+     * Suggest Spotify FullName as UserName and handle Spotify images field.
+     *
+     * Prefill user name field with Spotifys FullName.
+     * Spotify returns an "images" array, but Vanilla expects only an image url
+     * of type string. Conversion is done here.
      *
      * @param EntryController $sender Instance of the calling class.
      * @param mixed $args Event arguments.
