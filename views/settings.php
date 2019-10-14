@@ -4,7 +4,7 @@ $formData = $this->data('_Form');
 <h1><?= $this->data('Title') ?></h1>
 
 <div class="padded alert alert-info">
-    <?= $this->data('Description') ?>
+    <?= sprintf($this->data('Description'), $this->data('RedirectUrl')) ?>
 </div>
 <?= $this->Form->open(), $this->Form->errors() ?>
 <ul>

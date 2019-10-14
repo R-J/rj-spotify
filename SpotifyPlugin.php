@@ -57,11 +57,14 @@ class SpotifyPlugin extends Gdn_OAuth2 {
      * @return void.
      */
     public function settingsEndpoint($sender, $args) {
+        $description = Gdn::translate('rj-spotify-instructions');
+        $redirectUrl = Gdn::request()->url('/entry/'. self::PROVIDER_KEY, true, true);
         // Set title, description and url endpoints.
         // Urls are set in hidden fields. Parent method requires them.
         $sender->setData([
             'Title' => Gdn::translate('Spotify Settings'),
-            'Description' => Gdn::translate('rj-spotify-instructions'),
+            'Description' => $description,
+            'RedirectUrl' => $redirectUrl,
             'AuthorizeUrl' => self::AUTHORIZE_URL,
             'TokenUrl' => self::TOKEN_URL,
             'ProfileUrl' => self::PROFILE_URL
