@@ -4,29 +4,83 @@ namespace RJPlugins;
 
 use GDN;
 use Gdn_OAuth2;
+use Gdn_AuthenticationProviderModel;
 
 class SpotifyPlugin extends Gdn_OAuth2 {
+    /** Provider key */
+    const PROVIDER_KEY = 'spotify';
+    /** Authorization endpoint */
+    const AUTHORIZE_URL = 'https://accounts.spotify.com/authorize';
+    /** Token URl */
+    const TOKEN_URL = 'https://accounts.spotify.com/api/token';
+    /** Profile endpoint */
+    const PROFILE_URL = 'https://api.spotify.com/v1/me';
+
     /**
-     * Set the key for saving OAuth settings in GDN_UserAuthenticationProvider.
+     * Set the provider key for saving Spotify settings.
+     *
+     * Settings are saved in the GDN_UserAuthenticationProvider table.
      *
      * @return: void.
      */
     public function __construct() {
-        $this->setProviderKey('spotify');
+        $this->setProviderKey(self::PROVIDER_KEY);
     }
 
     /**
-     * Settings endpoint
-     * @param  [type] $sender [description]
-     * @param  [type] $args   [description]
-     * @return [type]         [description]
+     * Save Spotify info into AuthenticationProvider table.
+     *
+     * @return void.
+     */
+    public function structure() {
+        $authenticationProviderModel = new Gdn_AuthenticationProviderModel();
+        $provider = [
+            'AuthenticationKey' => self::PROVIDER_KEY,
+            'AuthenticationSchemeAlias' => self::PROVIDER_KEY,
+            'Name' => ucfirst(self::PROVIDER_KEY),
+            'AcceptedScope' => 'user-read-private user-read-email',
+            'ProfileKeyEmail' => 'email',
+            'ProfileKeyPhoto' => 'images', // Spotify returns an array, while a string is needed!
+            'ProfileKeyName' => 'display_name',
+            'ProfileKeyFullName' => 'display_name',
+            'ProfileKeyUniqueID' => 'id'
+        ];
+        $authenticationProviderModel->save($provider);
+    }
+
+    /**
+     * Settings endpoint.
+     *
+     * @param SettingsController $sender Instance of the calling class.
+     * @param mixed $args Event arguments.
+     *
+     * @return void.
      */
     public function settingsEndpoint($sender, $args) {
-        $sender->title('Spotify Settings');
-        $sender->settingsView = 'plugins/rj-spotify';
+        // Set title, description and url endpoints.
+        $sender->setData([
+            'Title' => Gdn::translate('Spotify Settings'),
+            'Description' => Gdn::translate('rj-spotify-instructions'),
+            'AuthorizeUrl' => self::AUTHORIZE_URL,
+            'TokenUrl' => self::TOKEN_URL,
+            'ProfileUrl' => self::PROFILE_URL
+        ]);
+        // Set custom view.
+        $this->settingsView = 'plugins/rj-spotify';
+
         parent::settingsEndpoint($sender, $args);
     }
 
+    /**
+     * Don't show additional config fields. They are set by the plugin.
+     *
+     * @return array Empty array of additional config fields.
+     */
+    public function getSettingsFormFields() {
+        return [];
+    }
+
+/*
     public function getSettingsFormFields() {
         $formFields = parent::getSettingsFormFields();
         $formFields['RedirectUrl'] = [
@@ -35,7 +89,16 @@ class SpotifyPlugin extends Gdn_OAuth2 {
         ];
         return $formFields;
     }
+*/
 
+    /**
+     * Add spotify css to pages.
+     *
+     * @param AssetModel $sender Instance of the calling class.
+     * @param mixed $args Event arguments.
+     *
+     * @return void.
+     */
     public function assetModel_styleCss_handler($sender, $args) {
         $sender->addCssFile('spotify.css', 'plugins/rj-spotify');
     }
