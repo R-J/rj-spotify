@@ -4,7 +4,7 @@
     "name": "Spotify Login",
     "description": "Allow users to sign in with their Spotify account.",
     "license": "MIT",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "settingsUrl": "/settings/spotify",
     "pluginUrl": "https://github.com/r-j/rj-spotify",
     "authors": [

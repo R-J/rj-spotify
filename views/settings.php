@@ -1,6 +1,7 @@
 <?php defined('APPLICATION') or die;
 // Get form data.
 $formData = $this->data('_Form');
+$attributes = $this->data('Attributes');
 // Remove fields that need not be configured by the user.
 unset($formData['AuthorizeUrl']);
 unset($formData['TokenUrl']);
@@ -17,9 +18,9 @@ $formData['IsDefault']['LabelCode'] = 'Default Signin Method';
 <?= $this->Form->open() ?>
 <?= $this->Form->errors() ?>
 <?= $this->Form->simple($formData) ?>
-<p class="Hidden">
-    <?= $this->Form->textBox('AuthorizeUrl', ['value' => $this->data('AuthorizeUrl')]) ?>
-    <?= $this->Form->textBox('TokenUrl', ['value' => $this->data('TokenUrl')]) ?>
-    <?= $this->Form->textBox('ProfileUrl', ['value' => $this->data('ProfileUrl')]) ?>
+<p class="Hidden" aria-hidden="true">
+<?php foreach($attributes as $key => $value): ?>
+    <?= $this->Form->textBox($key, ['value' => $value]) ?>
+<?php endforeach ?>
 </p>
 <?= $this->Form->close('Save') ?>

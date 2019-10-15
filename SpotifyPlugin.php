@@ -9,12 +9,6 @@ use Gdn_AuthenticationProviderModel;
 class SpotifyPlugin extends Gdn_OAuth2 {
     /** Provider key */
     const PROVIDER_KEY = 'spotify';
-    /** Authorization endpoint */
-    const AUTHORIZE_URL = 'https://accounts.spotify.com/authorize';
-    /** Token URl */
-    const TOKEN_URL = 'https://accounts.spotify.com/api/token';
-    /** Profile endpoint */
-    const PROFILE_URL = 'https://api.spotify.com/v1/me';
 
     /**
      * Set the provider key for saving Spotify settings.
@@ -37,13 +31,7 @@ class SpotifyPlugin extends Gdn_OAuth2 {
         $provider = [
             'AuthenticationKey' => self::PROVIDER_KEY,
             'AuthenticationSchemeAlias' => self::PROVIDER_KEY,
-            'Name' => ucfirst(self::PROVIDER_KEY),
-            'AcceptedScope' => 'user-read-private user-read-email',
-            'ProfileKeyEmail' => 'email',
-            'ProfileKeyPhoto' => 'images', // Spotify returns an array, while a string is needed!
-            'ProfileKeyName' => 'display_name',
-            'ProfileKeyFullName' => 'display_name',
-            'ProfileKeyUniqueID' => 'id'
+            'Name' => ucfirst(self::PROVIDER_KEY)
         ];
         $authenticationProviderModel->save($provider);
     }
@@ -59,15 +47,23 @@ class SpotifyPlugin extends Gdn_OAuth2 {
     public function settingsEndpoint($sender, $args) {
         $description = Gdn::translate('rj-spotify-instructions');
         $redirectUrl = Gdn::request()->url('/entry/'. self::PROVIDER_KEY, true, true);
-        // Set title, description and url endpoints.
-        // Urls are set in hidden fields. Parent method requires them.
+        // Only client ID and secret should be required. Rest will be pre-filled.
+        $attributes = [
+            'AuthorizeUrl' => 'https://accounts.spotify.com/authorize',
+            'TokenUrl' => 'https://accounts.spotify.com/api/token',
+            'ProfileUrl' => 'https://api.spotify.com/v1/me',
+            'AcceptedScope' => 'user-read-private user-read-email',
+            'ProfileKeyEmail' => 'email',
+            'ProfileKeyPhoto' => 'images', // Spotify returns an array, while a string is needed!
+            'ProfileKeyName' => 'display_name',
+            'ProfileKeyFullName' => 'display_name',
+            'ProfileKeyUniqueID' => 'id'
+        ];
         $sender->setData([
             'Title' => Gdn::translate('Spotify Settings'),
             'Description' => $description,
             'RedirectUrl' => $redirectUrl,
-            'AuthorizeUrl' => self::AUTHORIZE_URL,
-            'TokenUrl' => self::TOKEN_URL,
-            'ProfileUrl' => self::PROFILE_URL
+            'Attributes' => $attributes
         ]);
         // Set custom view.
         $this->settingsView = 'plugins/rj-spotify';
@@ -111,14 +107,14 @@ class SpotifyPlugin extends Gdn_OAuth2 {
      * @return void.
      */
     public function entryController_afterConnectData_handler($sender, $args) {
-        // Set UserName.
+        // Suggest Spotifys FullName as user name.
         if (
             $sender->Form->getValue('ConnectName') == false &&
             $sender->Form->getFormValue('ConnectName', false) == false
         ) {
             $sender->Form->setValue('ConnectName', $args['Profile']['FullName']);
         }
-        // Set Photo.
+        // Spotify returns images[], but only one string is needed in Vanilla.
         if (count($args['Profile']['Photo']) > 0) {
             $sender->Form->setFormValue(
                 'Photo',
